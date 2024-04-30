@@ -1,0 +1,782 @@
+--crear base datos
+create database clientestest
+
+--mostrar bases de datos
+show databases
+
+--nos movemos a la base de datos
+use clientestest
+
+--ver tablas
+show tables
+
+--id se autoincrementa y como primary key
+--numeric los decimales
+--date las fechas
+--VARCHAR(255) textos
+--claves foraneas
+
+CREATE TABLE Customers (
+    CustomerID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerName VARCHAR(255),
+    ContactName VARCHAR(255),
+    Address VARCHAR(255),
+    City VARCHAR(255),
+    PostalCode VARCHAR(10),
+    Country VARCHAR(255)
+);
+
+
+
+create table Categories(
+    CategoryID	INT AUTO_INCREMENT PRIMARY KEY,
+    CategoryName VARCHAR(255),
+    Description VARCHAR(255)
+);
+
+create table Employees(
+    EmployeeID	INT AUTO_INCREMENT PRIMARY KEY,
+    LastName VARCHAR(255),
+    FirstName VARCHAR(255),	
+    BirthDate date,
+    Notes VARCHAR(255)
+);
+
+create table Shippers(
+    ShipperID INT AUTO_INCREMENT PRIMARY KEY,
+    ShipperName	VARCHAR(255),
+    Phone VARCHAR(255)
+);
+
+create table Suppliers(
+    SupplierID	INT AUTO_INCREMENT PRIMARY KEY,
+    SupplierName VARCHAR(255),	
+    ContactName	VARCHAR(255),
+    Address	VARCHAR(255),
+    City VARCHAR(255),
+    PostalCode	VARCHAR(255),
+    Country	VARCHAR(255),
+    Phone VARCHAR(255)
+);
+
+create table Orders(
+    OrderID	INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID	INT,
+    EmployeeID	INT,
+    OrderDate date,
+    ShipperID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
+    FOREIGN KEY (ShipperID) REFERENCES Shippers(ShipperID)
+);
+
+create table Products(
+    ProductID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductName	VARCHAR(255),	
+    SupplierID	INT,
+    CategoryID	INT,
+    Unit INT,
+    Price NUMERIC,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+CREATE TABLE OrderDetails (
+    OrderDetailID INT AUTO_INCREMENT PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+
+
+
+--para ver estructura
+describe customers
+
+
+
+
+--insertar elementos
+
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES
+('Company A', 'John Doe', '123 Main Street', 'New York', '10001', 'USA'),
+('Company B', 'Jane Smith', '456 Elm Street', 'Los Angeles', '90001', 'USA'),
+('Company C', 'Mike Johnson', '789 Oak Street', 'Chicago', '60601', 'USA'),
+('Company D', 'Emily Davis', '101 Pine Street', 'Houston', '77001', 'USA'),
+('Company E', 'Chris Wilson', '222 Maple Street', 'Miami', '33101', 'USA');
+
+
+INSERT INTO Categories (CategoryName, Description) VALUES
+('Electronics', 'Products related to electronic devices and gadgets'),
+('Clothing', 'Apparel and fashion accessories'),
+('Books', 'Literature and educational material'),
+('Home Decor', 'Items for decorating homes and living spaces'),
+('Sports', 'Equipment and gear for various sports activities');
+
+
+INSERT INTO Employees (LastName, FirstName, BirthDate, Notes) VALUES
+('Smith', 'John', '1990-05-15', 'Excellent communication skills'),
+('Johnson', 'Emily', '1985-08-20', 'Experienced in project management'),
+('Garcia', 'Michael', '1988-12-10', 'Proficient in data analysis'),
+('Davis', 'Sarah', '1992-04-25', 'Strong problem-solving abilities'),
+('Brown', 'David', '1987-07-05', 'Skilled in customer service');
+
+
+INSERT INTO Shippers (ShipperName, Phone) VALUES
+('Speedy Express', '(123) 456-7890'),
+('United Logistics', '(987) 654-3210'),
+('Fast Freight', '(555) 123-4567'),
+('Global Shipping', '(999) 888-7777'),
+('Swift Transport', '(333) 222-1111');
+
+
+INSERT INTO Suppliers (SupplierName, ContactName, Address, City, PostalCode, Country, Phone) VALUES
+('Supplier A', 'John Smith', '123 Main Street', 'New York', '10001', 'USA', '(123) 456-7890'),
+('Supplier B', 'Jane Doe', '456 Elm Street', 'Los Angeles', '90001', 'USA', '(987) 654-3210'),
+('Supplier C', 'Mike Johnson', '789 Oak Street', 'Chicago', '60601', 'USA', '(555) 123-4567'),
+('Supplier D', 'Emily Davis', '101 Pine Street', 'Houston', '77001', 'USA', '(999) 888-7777'),
+('Supplier E', 'Chris Wilson', '222 Maple Street', 'Miami', '33101', 'USA', '(333) 222-1111');
+
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID) VALUES
+(1, 1, '2024-04-29', 1),
+(2, 2, '2024-04-28', 2),
+(3, 3, '2024-04-27', 3),
+(4, 4, '2024-04-26', 4),
+(5, 5, '2024-04-25', 5);
+
+
+INSERT INTO Products (ProductName, SupplierID, CategoryID, Unit, Price) VALUES
+('Product A', 1, 1, 10, 50.00),
+('Product B', 2, 2, 20, 30.00),
+('Product C', 3, 3, 15, 25.00),
+('Product D', 4, 4, 25, 40.00),
+('Product E', 5, 5, 12, 35.00);
+
+INSERT INTO OrderDetails (OrderID, ProductID, Quantity) VALUES
+(1, 1, 2),
+(2, 2, 3),
+(3, 3, 1),
+(4, 4, 4),
+(5, 5, 5);
+
+
+
+
+SELECT CustomerName, City FROM Customers;
+
+--salta error 1175, tienes que poner SET SQL_SAFE_UPDATES = 0; o actualizar la clave primaria
+UPDATE Customers SET Country = 'Mexico', City= 'Guadalajara' WHERE CustomerName = 'Company A';
+
+UPDATE Customers SET Country = 'Canada', City= 'Montreal' WHERE CustomerID = 2;
+
+--distintos paises
+SELECT DISTINCT Country FROM Customers;
+
+--cuenta de los distintos paises
+SELECT COUNT(DISTINCT Country) as cuenta FROM Customers;
+
+--filtrando por pais
+SELECT * FROM Customers WHERE Country='Mexico';
+
+--filtrando por numero
+SELECT * FROM Customers WHERE CustomerID > 3;
+
+--ordenando por precio menor a mayor
+SELECT * FROM Products ORDER BY Price;
+
+--mayor a menor
+SELECT * FROM Products ORDER BY Price DESC;
+
+--por texto: A,B,C...
+SELECT * FROM Products ORDER BY ProductName;
+
+--E,D,C ...
+SELECT * FROM Products ORDER BY ProductName DESC;
+
+--ordena por primer valor y si hay similares por segundo
+SELECT * FROM Customers ORDER BY Country, CustomerName; 
+
+--primer orden asc y segundo desc
+SELECT * FROM Customers ORDER BY Country ASC, CustomerName DESC;
+
+UPDATE Customers SET CustomerName = 'Garcia' WHERE CustomerID = 1;
+
+--de mexico y nombre que empieza por G...
+SELECT * FROM Customers WHERE Country = 'Mexico' AND CustomerName LIKE 'G%';
+
+--triple filtro
+SELECT * FROM Customers WHERE Country = 'Mexico' AND City = 'Guadalajara' AND PostalCode > 10000;
+
+UPDATE Customers SET CustomerName = 'Johnson' WHERE CustomerID = 3;
+UPDATE Customers SET CustomerName = 'Mendez' WHERE CustomerID = 4;
+UPDATE Customers SET CustomerName = 'Brady' WHERE CustomerID = 5;
+
+--de Usa y con uno de los dos nombres, empezando por J o M
+SELECT * FROM Customers WHERE Country = 'USA' AND (CustomerName LIKE 'J%' OR CustomerName LIKE 'M%');
+
+--los de USA con J o los de M
+SELECT * FROM Customers WHERE Country = 'USA' AND CustomerName LIKE 'J%' OR CustomerName LIKE 'M%';  
+
+--USA o Mexico
+SELECT * FROM Customers WHERE Country = 'USA' OR Country = 'Mexico';
+
+--no de USA
+SELECT * FROM Customers WHERE NOT Country = 'USA';
+
+--no nombre empieza por G
+SELECT * FROM Customers WHERE CustomerName NOT LIKE 'G%';
+
+--valor no en el rango (tampoco 2 ni 4)
+SELECT * FROM Customers WHERE CustomerID NOT BETWEEN 2 AND 4;
+
+--ciudad no en conjunto
+SELECT * FROM Customers WHERE City NOT IN ('Guadalajara', 'Miami');
+
+--no mayores a..
+SELECT * FROM Customers WHERE NOT CustomerID > 3;
+
+--mas inserts
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+
+--con valores faltantes
+INSERT INTO Customers (CustomerName, City, Country) VALUES ('Cardinal', 'Stavanger', 'Norway');
+
+--varios a la vez
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway'), ('Greasy Burger', 'Per Olsen', 'Gateveien 15', 'Sandnes', '4306', 'Norway'), ('Tasty Tee', 'Finn Egan', 'Streetroad 19B', 'Liverpool', 'L1 0AA', 'UK');
+
+--campo nulo
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NULL;
+
+--campo no nulo
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NOT NULL;
+
+--actualizamos
+UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1;
+
+--eliminamos elemento da error por la clave
+DELETE FROM Customers WHERE ContactName='Alfred Schmidt';
+
+--mostramos orders suyos relacionando claves
+select * from Orders o, Customers C where C.customerID=O.customerID and C.ContactName='Alfred Schmidt'
+
+--dos opciones, eliminar este order que depende del customers o establecer on delete cascade
+--para lograr que al eliminar un Customer se eliminen automaticamente los orders asociados a ese cliente
+--al crear la tabla orders:  FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE,
+--si ya esta la tabla creada, alteramos la clave
+--vemos que valor tiene la restriccion
+SHOW CREATE TABLE Orders;
+ALTER TABLE Orders DROP FOREIGN KEY orders_ibfk_1; 
+ALTER TABLE Orders ADD CONSTRAINT CustomerID FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE;
+
+--lo mismo para la tabla orderDetails
+SHOW CREATE TABLE OrderDetails;
+ALTER TABLE OrderDetails DROP FOREIGN KEY orderdetails_ibfk_1; 
+ALTER TABLE OrderDetails ADD CONSTRAINT OrderID FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE;
+
+--volvemos a eliminar, ahora ya funciona
+DELETE FROM Customers WHERE ContactName='Alfred Schmidt';
+
+--elimar tabla
+DROP TABLE Customers;
+
+--solo los 3 primeros, limitando
+SELECT * FROM Customers LIMIT 3;
+
+--menor precio
+SELECT MIN(Price) AS SmallestPrice FROM Products;
+
+--mayor precio
+SELECT MAX(Price) FROM Products;
+
+--menor precio agrupando por categoria
+SELECT MIN(Price) AS SmallestPrice, CategoryID FROM Products GROUP BY CategoryID;
+
+--contamos productos
+SELECT COUNT(*) FROM Products;
+
+UPDATE Products SET CategoryID = 3 WHERE ProductID = 1;
+
+--contamos categorias distintas
+SELECT COUNT(DISTINCT CategoryID) as CategoriasDistintas FROM Products;
+
+--categorias distintas para productos con un precio superior
+SELECT COUNT(DISTINCT CategoryID) FROM Products WHERE Price > 35;
+
+--nombre largo alias
+SELECT COUNT(*) AS `Number of records` FROM Products;
+
+--agrupamos por categoria y contamos
+SELECT COUNT(*) AS `Number of records`, CategoryID FROM Products GROUP BY CategoryID;
+
+--sumamos cantidad 
+SELECT SUM(Quantity) FROM OrderDetails;
+
+--sumamos cantidades mayores a 2
+SELECT SUM(Quantity) FROM OrderDetails WHERE Quantity >2;
+
+--sumamos y multiplicamos
+SELECT SUM(Quantity * 10) FROM OrderDetails;
+
+--left join, muestra los de la tabla izq y los elementos relacionados de la tabla derecha
+SELECT * FROM OrderDetails LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+--con calculo
+SELECT SUM(Price * Quantity) FROM OrderDetails LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+--media
+SELECT AVG(Price) FROM Products;
+
+--superiores a la media
+SELECT * FROM Products WHERE price > (SELECT AVG(price) FROM Products);
+
+--precio medio agrupando por categoria
+SELECT AVG(Price) AS AveragePrice, CategoryID FROM Products GROUP BY CategoryID;
+
+--empiezan por a
+SELECT * FROM Customers WHERE CustomerName LIKE 'J%'; 
+
+--ciudad miami con _ un caracter
+SELECT * FROM Customers WHERE city LIKE 'M_a__'; 
+
+--contiene L
+SELECT * FROM Customers WHERE city LIKE '%L%'; 
+
+--empieza J o M
+SELECT * FROM Customers WHERE CustomerName LIKE 'J%' OR CustomerName LIKE 'M%'; 
+
+--termina en y
+SELECT * FROM Customers WHERE CustomerName LIKE '%y'; 
+
+--empieza por b y termina por y
+SELECT * FROM Customers WHERE CustomerName LIKE 'b%y'; 
+
+--empieza por b y al menos 3 carac
+SELECT * FROM Customers WHERE CustomerName LIKE 'b__%'; 
+
+--r en la 2a posicion
+SELECT * FROM Customers WHERE CustomerName LIKE '_r%';  
+
+--empiezan por b o s g
+SELECT * FROM Customers WHERE CustomerName REGEXP '^[bsg]'; 
+
+--empiezan por nombre de a a la f
+SELECT * FROM Customers WHERE CustomerName REGEXP '^[a-f]'; 
+
+--cliente en el pais
+SELECT * FROM Customers WHERE Country IN ('Mexico', 'USA');
+
+--cliente no en el pais
+SELECT * FROM Customers WHERE Country NOT IN ('Mexico', 'USA');
+
+--clientes que tienen algun pedido
+SELECT * FROM Customers WHERE CustomerID IN (SELECT CustomerID FROM Orders); 
+
+--clientes sin pedidos
+SELECT * FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders); 
+
+--precio en rango
+SELECT * FROM Products WHERE Price BETWEEN 10 AND 30;
+
+--precio fuera de rango
+SELECT * FROM Products WHERE Price NOT BETWEEN 10 AND 30;
+
+--precio en rango y categoria en valores
+SELECT * FROM Products WHERE Price BETWEEN 10 AND 30 AND CategoryID IN (1,2,3);
+
+--en intervalo
+SELECT * FROM Orders WHERE OrderDate BETWEEN '2024-04-26' AND '2024-04-28';
+
+--mostrar datos diferentes tablas con relacion
+SELECT o.OrderID, o.OrderDate, c.CustomerName FROM Customers c, Orders o WHERE c.CustomerName='Johnson' AND c.CustomerID=o.CustomerID;
+
+--inner join
+SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate FROM Orders INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
+
+(INNER) JOIN: Returns records that have matching values in both tables (solo coincidentes en ambas tablas-->interseccion)
+LEFT (OUTER) JOIN: Returns all records from the left table, and the matched records from the right table (izq todos y correspondientes dcha)
+RIGHT (OUTER) JOIN: Returns all records from the right table, and the matched records from the left table (dcha todos y correspondientes izq)
+FULL (OUTER) JOIN: Returns all records when there is a match in either left or right table (todos izq y dcha con coincidencia-->todos)
+
+--products y categories
+SELECT ProductID, ProductName, CategoryName FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+--cambiando orden
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+--join e inner join lo mismo
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName FROM Products JOIN Categories ON Products.CategoryID = Categories.CategoryID; 
+
+
+SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName 
+    FROM ((Orders INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID) 
+    INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
+--pedido, nombre cliente y nombre envio
+--enlzamaos pedidos y clientes
+--enlazamos el pedido con el envio
+
+--clientes con pedidos
+SELECT Customers.CustomerName, Orders.OrderID 
+    FROM Customers LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID 
+    ORDER BY Customers.CustomerName;
+
+--empleados y orders
+SELECT o.OrderID, e.LastName, e.FirstName FROM Orders o RIGHT JOIN Employees e ON o.EmployeeID = e.EmployeeID ORDER BY o.OrderID;
+
+--combina los resultados de dos SELECT, en este caso solo distintos
+SELECT City FROM Customers UNION SELECT City FROM Suppliers ORDER BY City; 
+
+--en este caso tambien repetidos
+SELECT City FROM Customers UNION ALL SELECT City FROM Suppliers ORDER BY City; 
+
+--uniendo ciudades
+SELECT City, Country FROM Customers WHERE Country='USA' 
+    UNION 
+    SELECT City, Country FROM Suppliers WHERE Country='USA' ORDER BY City;
+
+--uniendo ciudades pero mostrando repetidas
+SELECT City, Country FROM Customers WHERE Country='USA' 
+    UNION ALL 
+    SELECT City, Country FROM Suppliers WHERE Country='USA' ORDER BY City;
+
+--poniendo el tipo se define de donde saca los datos
+SELECT 'Customer' AS Type, ContactName, City, Country FROM Customers 
+    UNION SELECT 'Supplier', ContactName, City, Country FROM Suppliers;
+
+--cuenta el numero de clientes por pais
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country ORDER BY COUNT(CustomerID) DESC;  
+
+--numero de pedidos por cada Shipper. count(valor) cuenta filas donde el valor en esa columna no es nulo
+SELECT Shippers.ShipperName, COUNT(Orders.OrderID) AS NumberOfOrders 
+    FROM Orders LEFT JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID 
+    GROUP BY ShipperName; 
+
+
+--having se añadido porque where no se puede utilizar en aggregates
+--muestra paises con al menos 2 clientes
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 2; 
+
+--ordenando
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 2 ORDER BY COUNT(CustomerID) DESC;
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID) VALUES
+(2, 1, '2024-04-29', 1),
+(2, 2, '2024-04-28', 2)
+
+--empleados con mas de 1 pedido
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders 
+    FROM (Orders INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID) 
+    GROUP BY LastName HAVING COUNT(Orders.OrderID) > 1; 
+
+
+--muestra vendedores con un precio de un producto mayor a 30
+SELECT SupplierName FROM Suppliers WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price > 30); 
+
+
+--productos con 2 orders
+SELECT ProductName FROM Products WHERE ProductID = ANY (SELECT ProductID FROM OrderDetails WHERE Quantity >2); 
+
+--productos que todos los orders tengan 5
+SELECT ProductName FROM Products WHERE ProductID = ALL (SELECT ProductID FROM OrderDetails WHERE Quantity = 5);  
+
+--copia lo de una tabla en otra
+CREATE TABLE CustomersBackup2017 AS SELECT * FROM Customers;
+
+
+
+
+--copia los datos de una tabla y los inserta en otra
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) SELECT SupplierName, ContactName, Address, City, PostalCode, Country FROM Suppliers;  
+
+--copia solo los de usa
+INSERT INTO Customers (CustomerName, City, Country) SELECT SupplierName, City, Country FROM Suppliers WHERE Country='USA';  
+
+--if else
+SELECT OrderID, Quantity, CASE WHEN Quantity > 2 THEN 'The quantity is greater than 2' WHEN Quantity = 2 THEN 'The quantity is 2' ELSE 'The quantity is under 2' END AS QuantityText FROM OrderDetails;
+
+--reemplzando nulos
+SELECT CustomerName, City, Country FROM Customers ORDER BY (CASE WHEN City IS NULL THEN Country ELSE City END);
+
+--si es nulo pon 0
+SELECT ProductName, Unit * ( IFNULL(Price, 0)) FROM Products; 
+
+--igual
+SELECT ProductName, Unit * (Unit + COALESCE(Price, 0)) FROM Products;
+
+
+
+--procedimiento que se pueda ejecutar facilmente en el futuro
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomers()
+BEGIN
+    SELECT * FROM Customers;
+END //
+DELIMITER ; 
+
+--para ejecutarlo
+CALL SelectAllCustomers();
+
+
+--con parametro
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomersCity (IN CityParam VARCHAR(30))
+BEGIN
+    SELECT * FROM Customers WHERE City = CityParam;
+END //
+DELIMITER ;
+
+--llamammos pasando el parametro
+CALL SelectAllCustomersCity('Miami');
+
+--2 parametros
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomersParams (IN CityParam VARCHAR(30), IN PostalCodeParam VARCHAR(10))
+BEGIN
+    SELECT * FROM Customers WHERE City = CityParam AND PostalCode = PostalCodeParam;
+END //
+DELIMITER ;
+
+--llamarlo
+CALL SelectAllCustomersParams('Miami', '33101');
+
+
+
+
+--crear tabla desde otra
+CREATE TABLE TestTable AS SELECT customername, contactname FROM customers;  
+select * from testtable
+
+--elimina datos pero no tabla
+TRUNCATE TABLE testtable; 
+
+--borrar tabla
+DROP TABLE testtable;
+
+
+--añade columna
+ALTER TABLE Customers ADD Email varchar(255);  
+
+--eliminar columna
+ALTER TABLE Customers DROP COLUMN Email;
+
+
+
+
+
+--crear tabla con valores no nulos, unico el id y como clave primaria
+CREATE TABLE Persons (
+    ID int NOT NULL UNIQUE,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    PRIMARY KEY (ID)
+);
+
+drop table persons;
+
+--clave primaria de dos campos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    CONSTRAINT PK_Person PRIMARY KEY (ID,LastName)
+);
+
+--insertamos
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES
+(1,"Fernandez","Javier",23)
+
+--no se puede por la clave primaria duplicada
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES
+(1,"Fernandez","Rodrigo",23)
+
+
+--eliminamos clave primaria
+ALTER TABLE Persons DROP PRIMARY KEY;
+
+--añadimos clave primaria
+ALTER TABLE Persons ADD PRIMARY KEY (ID);
+
+--ver como es la tabla
+describe Persons;
+
+
+--otra forma poner clave foranea
+CREATE TABLE LastOrders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    CONSTRAINT FK_PersonOrder FOREIGN KEY (PersonID)
+    REFERENCES Persons(ID)
+);
+
+--ver nombres claves foraneas y primarias
+SHOW CREATE TABLE LastOrders;
+
+--eliminar clave foranea
+ALTER TABLE LastOrders DROP FOREIGN KEY FK_PersonOrder;
+
+--crear otra vez clave foranea
+ALTER TABLE LastOrders ADD FOREIGN KEY (PersonID) REFERENCES Persons(ID);
+
+drop table lastorders;
+drop table persons;
+
+
+--check al crear elementos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    CHECK (Age>=18)
+);
+
+--no lo permite
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES
+(1,"Fernandez","Rodrigo",16)
+
+drop table persons;
+
+--validacion dos campos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    City varchar(255),
+    CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Valladolid')
+);
+
+--este si que lo permite
+INSERT INTO Persons (ID, LastName, FirstName,Age,City) VALUES
+(1,"Fernandez","Rodrigo",19,"Valladolid")
+
+--añadimos otra validacion
+ALTER TABLE Persons ADD CHECK (Age<=99);
+
+--para ver las validaciones
+show create table persons
+
+drop table persons
+
+--valor por defecto
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    City varchar(255) DEFAULT 'Sin ciudad'
+);
+
+--insertamos sin ciudad
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES
+(1,"Fernandez","Rodrigo",19)
+
+--añadimos por defecto
+ALTER TABLE Persons ALTER Age SET DEFAULT 18;
+
+--insertamos
+INSERT INTO Persons (ID, LastName, FirstName) VALUES
+(1,"Fernandez","Rodrigo")
+
+--eliminamos valor defecto
+ALTER TABLE Persons ALTER Age DROP DEFAULT;
+
+--para que permita nulos
+ALTER TABLE Persons MODIFY Age INT NULL;
+
+--insertamos
+INSERT INTO Persons (ID, LastName, FirstName) VALUES
+(1,"Fernandez","Ramon")
+
+--los indices se utilizan para recuperar los datos mas rapidamente
+--actualizar tablas con indices tarda mas. Mejor solo para busqueda
+
+--creamos el indice
+CREATE INDEX idx_pname ON Persons (LastName, FirstName);
+
+--ver indice
+SHOW INDEX FROM Persons;
+
+--eliminamos indice
+ALTER TABLE Persons DROP INDEX idx_pname;
+
+drop table persons
+
+--id que se autoincrementa
+CREATE TABLE Persons (
+    Personid int NOT NULL AUTO_INCREMENT,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    PRIMARY KEY (Personid)
+);
+
+--insertamos
+INSERT INTO Persons ( LastName, FirstName) VALUES
+("Fernandez","Ramon")
+
+select * from persons
+
+--una view es una tabla virtual con el resultado de una consulta
+CREATE VIEW USACustomers AS
+SELECT CustomerName, ContactName
+FROM Customers
+WHERE Country = 'USA';
+
+SELECT * FROM USACustomers;
+
+
+CREATE VIEW `Productos debajo media` AS
+SELECT ProductName, Price
+FROM Products
+WHERE Price > (SELECT AVG(Price) FROM Products);
+
+SELECT * FROM `Productos debajo media`;
+
+
+--modificamos la vista
+CREATE OR REPLACE VIEW USACustomers AS
+SELECT CustomerName, ContactName, City
+FROM Customers
+WHERE Country = 'USA';
+
+--vemos datos
+DROP VIEW USACustomers;
+
+
+
+
+
+--with crea un subloque de una query que se puede referenciar en la consulta principal
+--vista temporal que no se almacena, util cuando no es adecuada una tabla derivada
+WITH OrderInfo AS (
+    SELECT
+        o.OrderID,
+        o.CustomerID,
+        o.ShipperID,
+        c.CustomerName,
+        sm.ShipperName
+    FROM
+        Orders o
+    JOIN
+        Customers c ON o.CustomerID = c.CustomerID
+    JOIN
+        Shippers sm ON o.ShipperID = sm.ShipperID
+)
+SELECT
+    OrderInfo.OrderID,
+    OrderInfo.CustomerName,
+    OrderInfo.ShipperID
+FROM
+    OrderInfo;
+
+
+
+
