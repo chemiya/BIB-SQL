@@ -1,0 +1,422 @@
+-- -- ejecutado en mysql workbench
+drop database Avion;
+create database Avion;
+use Avion;
+
+drop table IF EXISTS Embarque;
+drop table IF EXISTS Vuelo;
+drop table IF EXISTS Aeropuerto;
+drop table IF EXISTS Cliente;
+drop table IF EXISTS Aerolinea;
+
+
+
+-- campos como char y primary key
+create table Aerolinea (
+  alid char(10),
+  nombre char(10),
+  primary key (alid)
+);
+
+
+-- campo date y clave foránea
+create table Cliente (
+  cid char(10),
+  nombre char(10),
+  fdn date,
+  tarjalid char(10),
+  primary key (cid),
+  foreign key (tarjalid) references Aerolinea (alid)
+);
+
+
+-- clave primaria
+create table Aeropuerto (
+  apid char(10),
+  ciudad char(10),
+  primary key (apid)
+);
+
+
+-- campo de hora y varias claves foráneas
+create table Vuelo (
+  vid char(10),
+  origen char(10),
+  destino char(10),
+  alid char(10),
+  horas time,
+  horall time,
+  primary key (vid),
+  foreign key (origen) references Aeropuerto (apid),
+  foreign key (destino) references Aeropuerto (apid),
+  foreign key (alid) references Aerolinea (alid)
+);
+
+
+-- claves foráneas y varias primarias
+create table Embarque (
+  cid char(10),
+  vid char(10),
+  fecha date,
+  primary key (cid,vid,fecha),
+  foreign key (cid) references Cliente (cid),
+  foreign key (vid) references Vuelo (vid)
+);
+
+
+
+
+-- insertar valores
+insert into Aerolinea values ('01QA', 'Qantas');
+insert into Aerolinea values ('02AL', 'Air Lingus');
+insert into Aerolinea values ('03AC', 'Air China');
+insert into Aerolinea values ('04AC', 'Air Canada');
+insert into Aerolinea values ('05IB', 'Iberia');
+insert into Aerolinea values ('06AF', 'Air France');
+insert into Aerolinea values ('07AE', 'AirEuropa');
+insert into Aerolinea values ('08AI', 'Air India');
+insert into Aerolinea values ('09FI', 'Finnair');
+
+
+-- insertar elementos de fecha
+insert into Cliente values ('user0', 'Davis', '1998-04-24', '01QA');
+insert into Cliente values ('user1', 'King', '1977-04-12', '01QA');
+insert into Cliente values ('user2', 'Green', '1991-04-12', '01QA');
+insert into Cliente values ('user3', 'Martin', '1981-04-12', '02AL');
+insert into Cliente values ('user4', 'Wright', '1978-04-12', '02AL');
+insert into Cliente values ('user5', 'Davis', '1977-12-01', '03AC');
+insert into Cliente values ('user6', 'Johnson', '1985-09-03', '04AC');
+insert into Cliente values ('user7', 'Rodriguez', '1969-05-14', '05IB');
+insert into Cliente values ('user8', 'Gonzalez', '1977-03-23', '05IB');
+insert into Cliente values ('user9', 'Lewis', '1972-03-23', '05IB');
+insert into Cliente values ('user10', 'Taylor', '1975-08-16', '06AF');
+insert into Cliente values ('user11', 'Walker', '1974-11-06', '06AF');
+insert into Cliente values ('user12', 'Anderson', '1995-06-11', '07AE');
+insert into Cliente values ('user13', 'Clark', '1992-07-26', '08AI');
+insert into Cliente values ('user14', 'Davis', '1975-08-10', '08AI');
+insert into Cliente values ('user15', 'Edwards', '1977-04-29', '08AI');
+insert into Cliente values ('user16', 'Gonzalez', '1982-10-09', '08AI');
+insert into Cliente values ('user17', 'Harris', '1988-12-27', '08AI');
+insert into Cliente values ('user18', 'Harris', '1997-04-19', '09FI');
+insert into Cliente values ('user19', 'Edwards', '1969-08-23', '09FI');
+insert into Cliente values ('user20', 'Charles', '1976-09-10', '09FI');
+insert into Cliente values ('user21', 'García', '1993-10-20', '09FI');
+insert into Cliente values ('user22', 'García', '1970-04-19', '09FI');
+
+insert into Aeropuerto values ('ap01', 'Valladolid');
+insert into Aeropuerto values ('ap02', 'Palencia');
+insert into Aeropuerto values ('ap03', 'Burgos');
+insert into Aeropuerto values ('ap04', 'León');
+insert into Aeropuerto values ('ap05', 'Zamora');
+insert into Aeropuerto values ('ap06', 'Salamanca');
+insert into Aeropuerto values ('ap07', 'Segovia');
+insert into Aeropuerto values ('ap08', 'Soria');
+insert into Aeropuerto values ('ap09', 'Ávila');
+insert into Aeropuerto values ('ap10', 'Madrid');
+insert into Aeropuerto values ('ap11', 'Barcelona');
+
+
+
+-- insertar elementos de hora
+insert into Vuelo values ('v01', 'ap01', 'ap02', '01QA', '12:00:00', '15:00:00');
+insert into Vuelo values ('v02', 'ap01', 'ap03', '01QA', '13:00:00', '16:00:00');
+insert into Vuelo values ('v03', 'ap01', 'ap04', '02AL', '14:00:00', '17:00:00');
+insert into Vuelo values ('v04', 'ap01', 'ap05', '02AL', '15:00:00', '18:00:00');
+insert into Vuelo values ('v05', 'ap01', 'ap06', '03AC', '16:00:00', '19:00:00');
+insert into Vuelo values ('v06', 'ap01', 'ap07', '03AC', '17:00:00', '20:00:00');
+insert into Vuelo values ('v07', 'ap01', 'ap08', '07AE', '18:00:00', '21:00:00');
+insert into Vuelo values ('v08', 'ap01', 'ap09', '07AE', '19:00:00', '22:00:00');
+insert into Vuelo values ('v09', 'ap01', 'ap10', '07AE', '20:00:00', '23:00:00');
+insert into Vuelo values ('v10', 'ap01', 'ap11', '07AE', '21:00:00', '23:00:00');
+insert into Vuelo values ('v11', 'ap01', 'ap07', '03AC', '17:00:00', '20:00:00');
+insert into Vuelo values ('v12', 'ap01', 'ap08', '07AE', '18:00:00', '21:00:00');
+insert into Vuelo values ('v13', 'ap01', 'ap09', '07AE', '19:00:00', '22:00:00');
+insert into Vuelo values ('v14', 'ap01', 'ap10', '07AE', '20:00:00', '23:00:00');
+insert into Vuelo values ('v15', 'ap01', 'ap11', '07AE', '21:00:00', '23:00:00');
+
+insert into Embarque values ('user1', 'v01', '2011-04-12');
+insert into Embarque values ('user2', 'v01', '2011-04-12');
+insert into Embarque values ('user3', 'v01', '2011-04-12');
+insert into Embarque values ('user4', 'v01', '2011-04-12');
+insert into Embarque values ('user20', 'v01', '2011-04-12');
+insert into Embarque values ('user21', 'v01', '2011-04-12');
+insert into Embarque values ('user22', 'v01', '2011-04-12');
+insert into Embarque values ('user1', 'v02', '2011-04-13');
+insert into Embarque values ('user2', 'v02', '2011-04-13');
+insert into Embarque values ('user3', 'v02', '2011-04-13');
+insert into Embarque values ('user4', 'v02', '2011-04-13');
+insert into Embarque values ('user22', 'v02', '2011-04-13');
+insert into Embarque values ('user21', 'v02', '2011-04-13');
+insert into Embarque values ('user1', 'v03', '2011-04-14');
+insert into Embarque values ('user6', 'v03', '2011-04-14');
+insert into Embarque values ('user7', 'v03', '2011-04-14');
+insert into Embarque values ('user22', 'v04', '2011-04-15');
+insert into Embarque values ('user2', 'v04', '2011-04-15');
+insert into Embarque values ('user2', 'v05', '2011-04-16');
+insert into Embarque values ('user1', 'v05', '2011-04-16');
+insert into Embarque values ('user4', 'v06', '2011-04-17');
+insert into Embarque values ('user5', 'v06', '2011-04-17');
+insert into Embarque values ('user6', 'v06', '2011-04-17');
+insert into Embarque values ('user7', 'v06', '2011-04-17');
+insert into Embarque values ('user8', 'v06', '2011-04-17');
+insert into Embarque values ('user2', 'v07', '2011-04-18');
+insert into Embarque values ('user4', 'v07', '2011-04-18');
+insert into Embarque values ('user3', 'v07', '2011-04-18');
+insert into Embarque values ('user1', 'v07', '2011-04-18');
+insert into Embarque values ('user18', 'v08', '2011-04-19');
+insert into Embarque values ('user22', 'v08', '2011-04-19');
+
+
+
+-- Todos los vuelos realizados por ‘García’
+select C.nombre, E.vid
+     from Cliente C, Embarque E 
+        where C.cid=E.cid 
+            and C.nombre like 'García%';
+-- el % significa que después puede haber más caracteres
+-- seleccionamos campos de diferentes tablas, definimos tablas, hacemos relación y filtramos
+
+
+
+
+-- Número de vuelos de la compañía ‘Qantas’
+select count(*) as cuentaQantas
+    from Aerolinea AL, Vuelo V 
+        where AL.alid=V.alid 
+            and AL.nombre = 'Qantas';
+-- filtramos el nombre que sea qantas
+-- hacemos relación vuelo y aerolínea, definimos tablas y contamos
+-- cuenta de los vuelos que son con aerolínea qantas
+-- poner el nombre de la cuenta
+
+
+
+–- Compañía (alid) con el máximo número de vuelos
+select V.alid, count(*) as nvu 
+    from Vuelo V 
+        group by V.alid 
+            having count(*) >= 
+                ALL(select count(*) as nvu from Vuelo V group by V.alid);
+-- hacemos cuenta de vuelos agrupando por alid
+-- buscamos elemento donde esta cuenta debe ser mayor al resto de las cuentas realizadas agrupando por alid
+
+
+-- (opción 2)
+with NVuelos as 
+    (select V.alid, count(*) as nvu
+         from Vuelo V 
+            group by V.alid) 
+select NV.alid, NV.nvu 
+    from NVuelos NV 
+        where NV.nvu >=
+             ALL (select NV2.nvu from Nvuelos NV2);
+-- primero agrupando por alid en los vuelos hacemos cuenta
+-- después seleccionamos el elemento de esta tabla que tenga una cuenta mayor al resto
+
+
+
+
+–- 5 compañías con el mayor número de vuelos
+with NVuelos as 
+    (select V.alid, count(*) as nvu
+         from Vuelo V
+             group by V.alid) 
+select NV.alid, NV.nvu 
+    from NVuelos NV 
+        where 5 > 
+            (select count(*) from Nvuelos NV2 where NV2.nvu > NV.nvu);
+-- contamos numero de vuelos por compañias
+-- mostramos elementos donde existan menos de 5 elementos donde la cuenta sea mayor
+
+
+
+-- Pares origen-destino (apids) con al menos 2 vuelos, ordenado por nº vuelos
+SELECT 
+    V.origen,
+    ao.ciudad AS ciudad_origen, 
+    V.destino,
+    ad.ciudad AS ciudad_destino, 
+    COUNT(*) AS nvu
+FROM 
+    Vuelo V
+JOIN 
+    aeropuerto ao ON V.origen = ao.apid
+JOIN 
+    aeropuerto ad ON V.destino = ad.apid
+GROUP BY 
+    V.origen,
+    ao.ciudad,
+    V.destino,
+    ad.ciudad
+HAVING 
+    COUNT(*) >= 2
+ORDER BY 
+    nvu DESC;
+-- mostramos origen y destino con cuenta, agrupando por origen y destino, siendo la cuenta mayor a 2 y ordenando
+
+
+
+– Personas (cid,nombre) que han viajado en su cumpleaños
+select distinct C.cid, C.nombre
+     from Cliente C, Embarque E
+         where E.cid=C.cid
+             and extract(day from E.fecha) = extract(day from C.fdn)
+                 and extract(month from E.fecha) = extract(month from C.fdn);
+-- mostramos los cid nombre distintos
+-- haciendo relación entre las tablas
+-- comparando el dia y mes de la fecha de nacimiento y de la de embarque
+
+
+
+
+–- Compañía con el máximo número de viajeros
+WITH Nviajeros AS 
+(
+    SELECT 
+        V.alid, 
+        COUNT(DISTINCT E.cid) AS nvi
+    FROM 
+        Vuelo V
+    JOIN 
+        Embarque E ON V.vid = E.vid 
+    GROUP BY 
+        V.alid
+)
+SELECT 
+    NV.alid, 
+    A.nombre AS nombre_aerolinea, 
+    NV.nvi 
+FROM 
+    Nviajeros NV
+JOIN 
+    aerolinea A ON NV.alid = A.alid
+WHERE 
+    NV.nvi >= ALL (SELECT NV2.nvi FROM Nviajeros NV2);
+-- cogemos cada alid contando los distintos embarques realizados, estableciendo la relación y agrupando por alid
+-- de ahí, obtenemos el que tiene mayor valor y es superior al resto de valores
+
+
+
+-- Personas que visitaron más ciudades en un periodo (fini,ffin)
+WITH APVisitados AS 
+    (SELECT DISTINCT E.cid, AP.ciudad 
+        FROM Embarque E, Vuelo V, Aeropuerto AP 
+            WHERE E.vid=V.vid 
+                AND E.fecha>='2011-04-12' 
+                    AND E.fecha<='2011-04-15' 
+                        AND (V.origen=AP.apid OR V.destino=AP.apid)), 
+NCiudades AS (
+    SELECT APV.cid, COUNT(*) AS nciu 
+        FROM APVisitados APV 
+            GROUP BY APV.cid)
+SELECT NC.cid, NC.nciu 
+    FROM NCiudades NC 
+        WHERE NC.nciu >= 
+            ALL (SELECT NC2.nciu FROM NCiudades NC2);
+-- cogemos distintos cid y ciudades, relacionado el embarque con el vuelo, limitando fechas de embarque haciendo que el origen o destino del vuelo coincidan con el apid del aeropuerto
+-- agrupamos por cid y contamos
+-- mostramos elemento que tiene un valor superior al resto
+
+
+-- Lista ordenada de aeropuertos y su rango; rango=nº total de vuelos con origen en el aeropuerto
+WITH NVuelos AS 
+    (SELECT V.origen AS apid, COUNT(*) AS nvu
+        FROM Vuelo V
+            GROUP BY V.origen)
+SELECT NV.apid, NV.nvu,
+       ROW_NUMBER() OVER (ORDER BY NV.nvu DESC) AS ranking
+            FROM NVuelos NV
+                ORDER BY ranking DESC;
+-- agrupamos por origen y contamos
+-- ordenamos descendente
+
+
+–- Encontrar todos los vuelos (vuelo-día) vacíos
+select V.vid, F.fecha from Vuelo V,
+     (select distinct E.fecha from Embarque E) F
+         where (V.vid,F.fecha) 
+            NOT IN (select E.vid, E.fecha from Embarque E);
+-- buscamos fechas diferentes de embarque e ids de vuelos
+-- comprobamos si esa pareja no esta en los embarques
+
+
+
+-- Vuelos con más de 4 pasajeros
+SELECT 
+    V.vid, 
+    V.origen, 
+    ao.ciudad AS ciudad_origen, 
+    V.destino, 
+    ad.ciudad AS ciudad_destino, 
+    COUNT(E.cid) AS numero_pasajeros
+FROM 
+    Vuelo V
+JOIN 
+    Embarque E ON V.vid = E.vid
+JOIN 
+    Aeropuerto ao ON V.origen = ao.apid
+JOIN 
+    Aeropuerto ad ON V.destino = ad.apid
+GROUP BY 
+    V.vid, V.origen, ao.ciudad, V.destino, ad.ciudad
+HAVING 
+    COUNT(E.cid) > 4;
+-- relacionamos los vuelos con los embarques
+-- validamos que vuelos tienen más de 4 embarques
+
+
+
+-- Clientes que han volado con más de 3 aerolíneas
+SELECT 
+    C.cid, 
+    C.nombre, 
+    COUNT(DISTINCT V.alid) AS numero_aerolineas
+FROM 
+    Cliente C
+JOIN 
+    Embarque E ON C.cid = E.cid
+JOIN 
+    Vuelo V ON E.vid = V.vid
+GROUP BY 
+    C.cid, C.nombre
+HAVING 
+    COUNT(DISTINCT V.alid) > 3;
+-- relacionamos el cliente con sus embarques y los vuelos con los embarques
+-- agrupamos por cliente y contamos quiénes tienen 3 alid diferentes, es decir, 3 compañías diferentes
+
+
+-- Aeropuertos que sirven de origen de más de 5 vuelos
+SELECT 
+    A.apid, 
+    A.ciudad, 
+    COUNT(V.vid) AS numero_vuelos
+FROM 
+    Aeropuerto A
+JOIN 
+    Vuelo V ON A.apid = V.origen
+GROUP BY 
+    A.apid, A.ciudad
+HAVING 
+    COUNT(V.vid) > 5;
+-- relacionamos los vuelos con las aeropuertos y agrupamos por aeropuertos contando los vuelos filtrando los que tienen más de 5 vuelos
+
+
+-- Aerolínea con el mayor número de vuelos que aterrizan en una ciudad específica
+SELECT 
+    A.alid, 
+    A.nombre AS nombre_aerolinea, 
+    COUNT(V.vid) AS numero_vuelos
+FROM 
+    Aerolinea A
+JOIN 
+    Vuelo V ON A.alid = V.alid
+JOIN 
+    Aeropuerto AP ON V.destino = AP.apid
+WHERE 
+    AP.ciudad = 'Madrid'
+GROUP BY 
+    A.alid, A.nombre
+ORDER BY 
+    numero_vuelos DESC
+LIMIT 1;
+-- relacionamos los vuelos con las aerolíneas y los aeropuertos con los destinos de los vuelos, marcando la ciudad de destino, agrupamos por aerolíneas, ordenamos y cogemos la primera

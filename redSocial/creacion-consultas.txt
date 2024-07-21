@@ -1,9 +1,17 @@
-drop table Miembro;
-drop table Estado;
-drop table Amistad;
-drop table Grupo;
-drop table Persona;
+-- ejecutado en mysql workbench
+drop database IF EXISTS Redsocial;
+create database Redsocial;
+use Redsocial;
 
+
+drop table IF EXISTS Miembro;
+drop table IF EXISTS Estado;
+drop table IF EXISTS Amistad;
+drop table IF EXISTS Grupo;
+drop table IF EXISTS Persona;
+
+
+-- con fecha y clave primaria
 create table Persona (
         pid char(10), 
         nombre char(20), 
@@ -12,12 +20,16 @@ create table Persona (
 	primary key (pid)
         );
 
+-- ver estructura
+describe Persona
+
 create table Grupo (
         gid char(10), 
         nombre char(100),
 	primary key (gid)
         );
 
+-- con claves foráneas
 create table Amistad (
 	pid1 char(10),
         pid2 char(10),
@@ -41,6 +53,8 @@ create table Miembro (
 	foreign key (pid) references Persona(pid),
 	foreign key (gid) references Grupo(gid)
         );
+
+
 
 insert into Persona values ('user0', 'Anthony Davis', '1998-04-24', '2003-11-20');
 insert into Persona values ('user1', 'Anthony King', '1977-08-06', '2002-01-04');
@@ -2428,3 +2442,133 @@ insert into Estado values ('user133', '2009-09-08', 'This is Estado update numbe
 insert into Estado values ('user134', '2009-09-02', 'This is Estado update number 0 by user134');
 insert into Estado values ('user134', '2009-09-08', 'This is Estado update number 1 by user134');
 insert into Estado values ('user134', '2009-09-10', 'This is Estado update number 2 by user134');
+
+
+
+
+
+–- Devolver el número de amigos de cada persona (nombre)
+select P.nombre,count(*) from Persona P, Amistad A
+     where P.pid=A.pid1 
+        group by P.pid;
+-- agrupamos por persona
+-- relacionamos tabla persona con amistad
+-- contamos las personas
+
+–- Seleccionar a la(s) persona(s) con más número de amigos
+with NAmigos as
+    (select A.pid1 as pid, count(*) as nam
+         from Amistad A 
+            group by A.pid1) 
+select P.nombre, NA.nam from Persona P, Namigos NA
+     where P.pid = NA.pid 
+        and NA.nam = (select max(NA2.nam) from NAmigos NA2);
+-- cogemos el nombre cuyo valor coincida con el del máximo
+-- agrupamos por pid y contamos
+
+
+-- Obtener los nombres de las personas que no han realizado ninguna entrada de estado
+select P.nombre 
+    from Persona P 
+        where P.pid 
+            not in (select E.pid from Estado E);
+-- cogemos los pid que no estén en los pid de estado
+
+
+-- Para cada persona que haya actualizado al menos dos veces el estado, determinar el tiempo en que han ocurrido esas actualizaciones
+select T.pid, (T.fult-T.fpri) as tiempo
+     from ( select E.pid,max(E.f_modif) as fult,
+        min(E.f_modif) as fpri
+             from Estado E 
+                group by E.pid 
+                    having count(*)>1) T;
+-- calculamos diferencia de tiempos
+-- obtenemos max y min tiempos agrupado por pid si tienen más de 1
+
+
+
+
+
+–- Encontrar a las 5 personas con mayor numero de amigos
+with NAmigos as 
+    (select P.nombre, count(*) as nam
+         from Persona P, Amistad A 
+            where P.pid=A.pid1 
+                group by P.pid )
+select NA.nombre,NA.nam from NAmigos NA
+     where 5 > 
+        ( select count(*) from NAmigos NA2 where NA2.nam > NA.nam);
+--agrupamos por pid y contamos
+--seleccionar los que no tienen 5 mayores
+
+
+
+
+
+–- Encontrar a los dos personas que hayan nacido con fechas más cercanas (sin contar las que han nacido en la misma fecha)
+with Difs as 
+    (select P1.nombre as nom1, P2.nombre as nom2, abs(P1.f_nacim - P2.f_nacim) as dif
+         from Persona P1, Persona P2
+             where P1.pid<>P2.pid 
+                and abs(P1.f_nacim - P2.f_nacim)>0 )
+select DF.nom1,DF.nom2 from Difs DF
+     where DF.dif = ( select min(DF2.dif) from Difs DF2);
+-- calculamos diferencia de fechas teniendo en cuenta que son diferentes y la diferencia>0
+-- encontramos nombres de los que tienen menores valores
+
+
+-- Grupos con más miembros
+SELECT 
+    G.gid, 
+    G.nombre, 
+    COUNT(M.pid) AS numero_miembros
+FROM 
+    Grupo G
+JOIN 
+    Miembro M ON G.gid = M.gid
+GROUP BY 
+    G.gid, G.nombre
+ORDER BY 
+    numero_miembros DESC
+LIMIT 1;
+-- unimos los miembros con los grupos y agrupamos por grupo contando los miembros
+
+
+-- Personas que son miembros de más de 4 grupos
+SELECT 
+    M.pid, 
+    P.nombre, 
+    COUNT(M.gid) AS numero_grupos
+FROM 
+    Miembro M
+JOIN 
+    Persona P ON M.pid = P.pid
+GROUP BY 
+    M.pid, P.nombre
+HAVING 
+    COUNT(M.gid) >= 4;
+-- unimos personas con los miembros, agrupando por personas y contamos cuantos miembros son, filtrando mayores de 4
+
+
+-- Estado más reciente de las personas
+SELECT 
+    E.pid, 
+    P.nombre, 
+    E.estado, 
+    E.f_modif
+FROM 
+    Estado E
+JOIN 
+    Persona P ON E.pid = P.pid
+WHERE 
+    (E.pid, E.f_modif) IN 
+    (
+        SELECT 
+            pid, 
+            MAX(f_modif) 
+        FROM 
+            Estado 
+        GROUP BY 
+            pid
+    );
+-- unimos personas y estados, cogemos datos del estado cuya fecha sea la más reciente

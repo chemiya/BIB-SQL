@@ -1,0 +1,1206 @@
+-- en postgre
+
+-- id se autoincrementa y como primary key
+-- numeric los decimales
+-- date las fechas
+-- VARCHAR(255) textos
+-- claves foráneas
+
+CREATE TABLE Customers (
+    CustomerID SERIAL PRIMARY KEY,
+    CustomerName VARCHAR(255),
+    ContactName VARCHAR(255),
+    Address VARCHAR(255),
+    City VARCHAR(255),
+    PostalCode VARCHAR(10),
+    Country VARCHAR(255)
+);
+
+
+
+create table Categories(
+    CategoryID	 SERIAL PRIMARY KEY,
+    CategoryName VARCHAR(255),
+    Description VARCHAR(255)
+);
+
+create table Employees(
+    EmployeeID	 SERIAL PRIMARY KEY,
+    LastName VARCHAR(255),
+    FirstName VARCHAR(255),	
+    BirthDate date,
+    Notes VARCHAR(255)
+);
+
+create table Shippers(
+    ShipperID  SERIAL PRIMARY KEY,
+    ShipperName	VARCHAR(255),
+    Phone VARCHAR(255)
+);
+
+create table Suppliers(
+    SupplierID	 SERIAL PRIMARY KEY,
+    SupplierName VARCHAR(255),	
+    ContactName	VARCHAR(255),
+    Address	VARCHAR(255),
+    City VARCHAR(255),
+    PostalCode	VARCHAR(255),
+    Country	VARCHAR(255),
+    Phone VARCHAR(255)
+);
+
+create table Orders(
+    OrderID	 SERIAL PRIMARY KEY,
+    CustomerID	INT,
+    EmployeeID	INT,
+    OrderDate date,
+    ShipperID INT,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
+    FOREIGN KEY (ShipperID) REFERENCES Shippers(ShipperID)
+);
+
+create table Products(
+    ProductID  SERIAL PRIMARY KEY,
+    ProductName	VARCHAR(255),	
+    SupplierID	INT,
+    CategoryID	INT,
+    Unit INT,
+    Price NUMERIC,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+CREATE TABLE OrderDetails (
+    OrderDetailID  SERIAL PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+-- ver databases
+SELECT datname FROM pg_database;
+
+-- ver tablas
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public';
+
+-- describir una tabla
+SELECT 
+    column_name,
+    data_type,
+    character_maximum_length,
+    is_nullable
+FROM 
+    information_schema.columns
+WHERE 
+    table_name = 'orders';
+
+
+
+
+
+
+
+
+-- insertar elementos
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+VALUES
+('Acme Corporation', 'Alice Johnson', '123 Elm St', 'Metropolis', '54321', 'USA'),
+('Globex Corporation', 'Bob Smith', '456 Oak Ave', 'Gotham', '12345', 'USA'),
+('Initech', 'Carol White', '789 Maple Dr', 'Springfield', '67890', 'USA'),
+('Hooli', 'David Brown', '321 Birch Rd', 'Shelbyville', '23456', 'USA');
+
+INSERT INTO Categories (CategoryName, Description)
+VALUES
+('Electronics', 'Devices and gadgets including phones, laptops, and cameras.'),
+('Furniture', 'Home and office furniture including desks, chairs, and sofas.'),
+('Clothing', 'Apparel including shirts, pants, and accessories.'),
+('Books', 'Fiction and non-fiction books across various genres.');
+
+INSERT INTO Employees (LastName, FirstName, BirthDate, Notes)
+VALUES
+('Doe', 'John', '1980-05-15', 'Senior Sales Manager'),
+('Smith', 'Jane', '1975-11-23', 'HR Specialist'),
+('Johnson', 'Emily', '1988-02-19', 'Customer Service Representative'),
+('Williams', 'Michael', '1992-07-30', 'IT Support Specialist');
+
+INSERT INTO Shippers (ShipperName, Phone)
+VALUES
+('FastShip Inc.', '555-1234'),
+('QuickDeliveries', '555-5678'),
+('Speedy Transport', '555-8765'),
+('Global Shipping', '555-4321');
+
+INSERT INTO Suppliers (SupplierName, ContactName, Address, City, PostalCode, Country, Phone)
+VALUES
+('TechSupply Co.', 'Nina Adams', '101 Tech Blvd', 'Tech City', '34567', 'USA', '555-3456'),
+('Furniture World', 'Chris Evans', '202 Furn St', 'Furnish Town', '45678', 'USA', '555-7890'),
+('Fashion Hub', 'Olivia Taylor', '303 Fashion St', 'Trend City', '56789', 'USA', '555-2345'),
+('Book Haven', 'James Wilson', '404 Book Rd', 'Readsville', '67890', 'USA', '555-6789');
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID)
+VALUES
+(1, 2, '2024-01-15', 1),
+(2, 3, '2024-02-20', 2),
+(3, 1, '2024-03-10', 3),
+(4, 4, '2024-04-25', 4);
+
+INSERT INTO Products (ProductName, SupplierID, CategoryID, Unit, Price)
+VALUES
+('Smartphone', 1, 1, 50, 699.99),
+('Office Chair', 2, 2, 100, 149.99),
+('Winter Jacket', 3, 3, 200, 99.99),
+('Science Fiction Novel', 4, 4, 150, 12.99);
+
+INSERT INTO OrderDetails (OrderID, ProductID, Quantity)
+VALUES
+(1, 1, 2),  -- 2 Smartphones in Order 1
+(2, 2, 1),  -- 1 Office Chair in Order 2
+(3, 3, 3),  -- 3 Winter Jackets in Order 3
+(4, 4, 5);  -- 5 Science Fiction Novels in Order 4
+
+
+
+
+-- básica
+SELECT CustomerName, City FROM Customers;
+
+-- operaciones update
+-- si salta error 1175 (workbench), tienes que poner SET SQL_SAFE_UPDATES = 0; o actualizar la clave primaria
+UPDATE Customers SET Country = 'Mexico', City= 'Guadalajara' WHERE CustomerName = 'Acme Corporation';
+
+UPDATE Customers SET Country = 'Canada', City= 'Montreal' WHERE CustomerID = 2;
+
+
+-- distintos países
+SELECT DISTINCT Country FROM Customers;
+
+-- cuenta de los distintos países
+SELECT COUNT(DISTINCT Country) as cuenta FROM Customers;
+
+-- filtrando por país
+SELECT * FROM Customers WHERE Country='Mexico';
+
+-- filtrando por número
+SELECT * FROM Customers WHERE CustomerID > 3;
+
+-- ordenando por precio menor a mayor
+SELECT * FROM Products ORDER BY Price;
+
+-- mayor a menor
+SELECT * FROM Products ORDER BY Price DESC;
+
+-- por texto: A,B,C...
+SELECT * FROM Products ORDER BY ProductName;
+
+-- E,D,C ...
+SELECT * FROM Products ORDER BY ProductName DESC;
+
+-- ordena por primer valor y si hay similares por segundo
+SELECT * FROM Customers ORDER BY Country, CustomerName; 
+
+-- primer orden asc y segundo desc
+SELECT * FROM Customers ORDER BY Country ASC, CustomerName DESC;
+
+-- actualizar por condición
+UPDATE Customers SET CustomerName = 'Garcia' WHERE CustomerID = 1;
+
+-- de México y nombre que empieza por G...
+SELECT * FROM Customers WHERE Country = 'Mexico' AND CustomerName LIKE 'G%';
+
+-- triple filtro
+SELECT * 
+FROM Customers 
+WHERE Country = 'Mexico' 
+  AND City = 'Guadalajara' 
+  AND CAST(PostalCode AS INTEGER) > 10000;
+
+UPDATE Customers SET CustomerName = 'Johnson' WHERE CustomerID = 3;
+UPDATE Customers SET CustomerName = 'Mendez' WHERE CustomerID = 4;
+UPDATE Customers SET CustomerName = 'Brady' WHERE CustomerID = 5;
+
+-- de USA y con uno de los dos nombres, empezando por J o M
+SELECT * FROM Customers WHERE Country = 'USA' AND (CustomerName LIKE 'J%' OR CustomerName LIKE 'M%');
+
+-- los de USA con J o los de M
+SELECT * FROM Customers WHERE Country = 'USA' AND CustomerName LIKE 'J%' OR CustomerName LIKE 'M%';  
+
+-- USA o México
+SELECT * FROM Customers WHERE Country = 'USA' OR Country = 'Mexico';
+
+-- no de USA
+SELECT * FROM Customers WHERE NOT Country = 'USA';
+
+-- no nombre empieza por G
+SELECT * FROM Customers WHERE CustomerName NOT LIKE 'G%';
+
+-- valor no en el rango (tampoco 2 ni 4)
+SELECT * FROM Customers WHERE CustomerID NOT BETWEEN 2 AND 4;
+
+-- ciudad no en conjunto
+SELECT * FROM Customers WHERE City NOT IN ('Guadalajara', 'Miami');
+
+-- no mayores a..
+SELECT * FROM Customers WHERE NOT CustomerID > 3;
+
+-- más inserts
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+
+-- con valores faltantes
+INSERT INTO Customers (CustomerName, City, Country) VALUES ('Cardinal', 'Stavanger', 'Norway');
+
+-- varios a la vez
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway'), ('Greasy Burger', 'Per Olsen', 'Gateveien 15', 'Sandnes', '4306', 'Norway'), ('Tasty Tee', 'Finn Egan', 'Streetroad 19B', 'Liverpool', 'L1 0AA', 'UK');
+
+-- campo nulo
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NULL;
+
+-- campo no nulo
+SELECT CustomerName, ContactName, Address FROM Customers WHERE Address IS NOT NULL;
+
+-- actualizamos
+UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1;
+
+-- eliminamos elemento da error por la clave
+DELETE FROM Customers WHERE ContactName='Alfred Schmidt';
+
+-- mostramos orders suyos relacionando claves
+select * from Orders o, Customers C where C.customerID=O.customerID and C.ContactName='Alfred Schmidt'
+
+-- dos opciones, eliminar este order que depende del customers o establecer on delete cascade
+-- para lograr que al eliminar un Customer se eliminen automáticamente los orders asociados a ese cliente
+-- al crear la tabla orders:  FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE,
+-- si ya esta la tabla creada, alteramos la clave
+-- vemos que valor tiene la restricción
+
+-- workbench
+SHOW CREATE TABLE Orders;
+ALTER TABLE Orders DROP FOREIGN KEY orders_ibfk_1; 
+ALTER TABLE Orders ADD CONSTRAINT CustomerID FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE;
+
+--postgre
+ALTER TABLE Orders DROP CONSTRAINT  orders_customerid_fkey; 
+
+ALTER TABLE Orders 
+ADD CONSTRAINT fk_customer 
+FOREIGN KEY (CustomerID) 
+REFERENCES Customers(CustomerID) 
+ON DELETE CASCADE;
+
+-- lo mismo para la tabla orderDetails (workbench)
+SHOW CREATE TABLE OrderDetails;
+ALTER TABLE OrderDetails DROP FOREIGN KEY orderdetails_ibfk_1; 
+ALTER TABLE OrderDetails ADD CONSTRAINT OrderID FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE;
+
+-- postgre
+ALTER TABLE OrderDetails DROP CONSTRAINT  orderdetails_orderid_fkey; 
+
+ALTER TABLE OrderDetails 
+ADD CONSTRAINT fk_order 
+FOREIGN KEY (OrderID) 
+REFERENCES Orders(OrderID) 
+ON DELETE CASCADE;
+
+-- volvemos a eliminar, ahora ya funciona
+DELETE FROM Customers WHERE ContactName='Alfred Schmidt';
+
+
+
+
+
+
+-- solo los 3 primeros, limitando
+SELECT * FROM Customers LIMIT 3;
+
+-- menor precio
+SELECT MIN(Price) AS SmallestPrice FROM Products;
+
+-- mayor precio
+SELECT MAX(Price) FROM Products;
+
+--menor precio agrupando por categoría
+SELECT MIN(Price) AS SmallestPrice, CategoryID FROM Products GROUP BY CategoryID;
+
+-- contamos productos
+SELECT COUNT(*) FROM Products;
+
+UPDATE Products SET CategoryID = 3 WHERE ProductID = 1;
+
+-- contamos categorías distintas
+SELECT COUNT(DISTINCT CategoryID) as CategoriasDistintas FROM Products;
+
+-- categorías distintas para productos con un precio superior
+SELECT COUNT(DISTINCT CategoryID) FROM Products WHERE Price > 35;
+
+-- nombre largo alias (workbench)
+SELECT COUNT(*) AS `Number of records` FROM Products;
+
+-- postgre
+SELECT COUNT(*) AS "Number of records" FROM Products;
+
+-- agrupamos por categoría y contamos
+SELECT COUNT(*) AS "Number of records", CategoryID FROM Products GROUP BY CategoryID;
+
+-- sumamos cantidad 
+SELECT SUM(Quantity) FROM OrderDetails;
+
+-- sumamos cantidades mayores a 2
+SELECT SUM(Quantity) FROM OrderDetails WHERE Quantity >2;
+
+-- sumamos y multiplicamos
+SELECT SUM(Quantity * 10) FROM OrderDetails;
+
+-- left join, muestra los de la tabla izq y los elementos relacionados de la tabla derecha
+-- orderdetail tabla de la izq y product tabla de la derecha
+SELECT * FROM OrderDetails LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+-- con cálculo
+SELECT SUM(Price * Quantity) FROM OrderDetails LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+-- media
+SELECT AVG(Price) FROM Products;
+
+-- superiores a la media
+SELECT * FROM Products WHERE price > (SELECT AVG(price) FROM Products);
+
+-- precio medio agrupando por categoría
+SELECT AVG(Price) AS AveragePrice, CategoryID FROM Products GROUP BY CategoryID;
+
+-- empiezan por j
+SELECT * FROM Customers WHERE CustomerName LIKE 'J%'; 
+
+-- ciudad Montreal con _ un carácter
+SELECT * FROM Customers WHERE city LIKE 'Mo_tr_al'; 
+
+-- contiene L
+SELECT * FROM Customers WHERE city LIKE '%L%'; 
+
+-- empieza J o M
+SELECT * FROM Customers WHERE CustomerName LIKE 'J%' OR CustomerName LIKE 'M%'; 
+
+-- termina en e
+SELECT * FROM Customers WHERE CustomerName LIKE '%e'; 
+
+-- empieza por T y termina por e
+SELECT * FROM Customers WHERE CustomerName LIKE 'T%e'; 
+
+-- empieza por T y al menos 3 carac
+SELECT * FROM Customers WHERE CustomerName LIKE 'T__%'; 
+
+-- a en la 2a posición
+SELECT * FROM Customers WHERE CustomerName LIKE '_a%';  
+
+-- empiezan por T o C (workbench)
+SELECT * FROM Customers WHERE CustomerName REGEXP '^[TC]'; 
+
+-- postgre
+SELECT * FROM Customers WHERE CustomerName ~ '^[TC]';
+
+-- empiezan por nombre de A a la F
+SELECT * FROM Customers WHERE CustomerName ~ '^[A-F]'; 
+
+-- cliente en el país
+SELECT * FROM Customers WHERE Country IN ('Mexico', 'USA');
+
+-- cliente no en el país
+SELECT * FROM Customers WHERE Country NOT IN ('Mexico', 'USA');
+
+-- clientes que tienen algún pedido
+SELECT * FROM Customers WHERE CustomerID IN (SELECT CustomerID FROM Orders); 
+
+-- clientes sin pedidos
+SELECT * FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders); 
+
+-- precio en rango
+SELECT * FROM Products WHERE Price BETWEEN 10 AND 30;
+
+-- precio fuera de rango
+SELECT * FROM Products WHERE Price NOT BETWEEN 10 AND 30;
+
+-- precio en rango y categoría en valores
+SELECT * FROM Products WHERE Price BETWEEN 50 AND 200 AND CategoryID IN (2,3);
+
+-- en intervalo por fechas
+SELECT * FROM Orders WHERE OrderDate BETWEEN '2024-04-21' AND '2024-04-28';
+
+-- mostrar datos diferentes tablas con relación
+SELECT o.OrderID, o.OrderDate, c.CustomerName FROM Customers c, Orders o WHERE c.CustomerName='Johnson' AND c.CustomerID=o.CustomerID;
+
+-- inner join
+SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate FROM Orders INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
+
+-- (INNER) JOIN: (solo coincidentes en ambas tablas-->intersección)
+-- LEFT (OUTER) JOIN: (izq todos y correspondientes dcha)
+-- RIGHT (OUTER) JOIN: (dcha todos y correspondientes izq)
+-- FULL (OUTER) JOIN: (todos izq y dcha con coincidencia-->todos)
+
+-- products y categories
+SELECT ProductID, ProductName, CategoryName FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- primero campos de products
+SELECT * FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- cambiando orden
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- join e inner join lo mismo
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName FROM Products JOIN Categories ON Products.CategoryID = Categories.CategoryID; 
+
+
+SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName 
+    FROM ((Orders INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID) 
+    INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
+-- pedido, nombre cliente y nombre envío
+-- enlazamos pedidos y clientes
+-- enlazamos el pedido con el envio
+
+-- clientes con pedidos
+SELECT Customers.CustomerName, Orders.OrderID 
+    FROM Customers LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID 
+    ORDER BY Customers.CustomerName;
+
+-- empleados y orders
+SELECT o.OrderID, e.LastName, e.FirstName FROM Orders o RIGHT JOIN Employees e ON o.EmployeeID = e.EmployeeID ORDER BY o.OrderID;
+
+-- primero campos de los orders
+SELECT * FROM Orders o RIGHT JOIN Employees e ON o.EmployeeID = e.EmployeeID ORDER BY o.OrderID;
+
+-- combina los resultados de dos SELECT, en este caso solo distintos
+SELECT City FROM Customers UNION SELECT City FROM Suppliers ORDER BY City; 
+
+-- en este caso también repetidos
+SELECT City FROM Customers UNION ALL SELECT City FROM Suppliers ORDER BY City; 
+
+-- uniendo ciudades
+SELECT City, Country FROM Customers WHERE Country='USA' 
+    UNION 
+    SELECT City, Country FROM Suppliers WHERE Country='USA' ORDER BY City;
+
+-- uniendo ciudades pero mostrando repetidas
+SELECT City, Country FROM Customers WHERE Country='USA' 
+    UNION ALL 
+    SELECT City, Country FROM Suppliers WHERE Country='USA' ORDER BY City;
+
+-- poniendo el tipo se define de donde saca los datos ya que se obtienen de dos tablas
+SELECT 'Customer' AS Type, ContactName, City, Country FROM Customers 
+    UNION SELECT 'Supplier', ContactName, City, Country FROM Suppliers;
+
+-- cuenta el número de clientes por país
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country ORDER BY COUNT(CustomerID) DESC;  
+
+-- número de pedidos por cada Shipper. count(valor) cuenta filas donde el valor en esa columna no es nulo
+SELECT Shippers.ShipperName, COUNT(Orders.OrderID) AS NumberOfOrders 
+    FROM Orders LEFT JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID 
+    GROUP BY ShipperName; 
+
+
+-- having se añadió porque where no se puede utilizar en aggregates
+-- muestra países con al menos 2 clientes
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 2; 
+
+-- ordenando
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 2 ORDER BY COUNT(CustomerID) DESC;
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID) VALUES
+(2, 1, '2024-04-29', 1),
+(2, 2, '2024-04-28', 2)
+
+-- empleados con más de 1 pedido
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders 
+    FROM (Orders INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID) 
+    GROUP BY LastName HAVING COUNT(Orders.OrderID) > 1; 
+
+
+-- muestra vendedores con un precio de un producto mayor a 30
+SELECT SupplierName FROM Suppliers WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price > 30); 
+
+
+-- productos con 2 orders
+SELECT ProductName FROM Products WHERE ProductID = ANY (SELECT ProductID FROM OrderDetails WHERE Quantity >2); 
+
+-- productos que todos los orders tengan 5
+SELECT ProductName FROM Products WHERE ProductID = ALL (SELECT ProductID FROM OrderDetails WHERE Quantity = 5);  
+
+-- copia lo de una tabla en otra
+CREATE TABLE CustomersBackup2017 AS SELECT * FROM Customers;
+
+select * from CustomersBackup2017
+
+
+-- copia los datos de una tabla y los inserta en otra
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country) SELECT SupplierName, ContactName, Address, City, PostalCode, Country FROM Suppliers;  
+
+-- copia solo los de USA
+INSERT INTO Customers (CustomerName, City, Country) SELECT SupplierName, City, Country FROM Suppliers WHERE Country='USA';  
+
+-- if else
+SELECT OrderID, Quantity, CASE WHEN Quantity > 2 THEN 'The quantity is greater than 2' WHEN Quantity = 2 THEN 'The quantity is 2' ELSE 'The quantity is under 2' END AS QuantityText FROM OrderDetails;
+
+-- reemplzando nulos
+SELECT CustomerName, City, Country FROM Customers ORDER BY (CASE WHEN City IS NULL THEN Country ELSE City END);
+
+-- si es nulo pon 0 (workbench)
+SELECT ProductName, Unit * ( IFNULL(Price, 0)) FROM Products; 
+
+-- postgre
+SELECT ProductName, Unit * COALESCE(Price, 0) AS TotalValue FROM Products;
+
+-- igual
+SELECT ProductName, Unit * (Unit + COALESCE(Price, 0)) FROM Products;
+
+
+
+-- procedimiento que se pueda ejecutar fácilmente en el futuro (workbench)
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomers()
+BEGIN
+    SELECT * FROM Customers;
+END //
+DELIMITER ; 
+
+
+-- postgre
+CREATE OR REPLACE FUNCTION select_all_customers()
+RETURNS TABLE (
+    CustomerID INT,
+    CustomerName VARCHAR,
+    ContactName VARCHAR,
+    Address VARCHAR,
+    City VARCHAR,
+    PostalCode VARCHAR,
+    Country VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM Customers;
+END;
+$$ LANGUAGE plpgsql;
+
+
+--para ejecutarlo (workbench)
+CALL select_all_customers();
+
+-- postgre
+SELECT * FROM select_all_customers();
+
+
+--con parámetro
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomersCity (IN CityParam VARCHAR(30))
+BEGIN
+    SELECT * FROM Customers WHERE City = CityParam;
+END //
+DELIMITER ;
+
+-- postgre
+CREATE OR REPLACE FUNCTION select_all_customers_city(CityParam VARCHAR)
+RETURNS TABLE (
+    CustomerID INT,
+    CustomerName VARCHAR,
+    ContactName VARCHAR,
+    Address VARCHAR,
+    City VARCHAR,
+    PostalCode VARCHAR,
+    Country VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.CustomerID,
+        c.CustomerName,
+        c.ContactName,
+        c.Address,
+        c.City,
+        c.PostalCode,
+        c.Country
+    FROM 
+        Customers c
+    WHERE 
+        c.City = CityParam; -- Referencia clara a la variable
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- llamammos pasando el parametro
+CALL SelectAllCustomersCity('Miami');
+
+
+-- postgre
+SELECT * FROM select_all_customers_city('Montreal');
+
+-- 2 parámetros
+DELIMITER //
+CREATE PROCEDURE SelectAllCustomersParams (IN CityParam VARCHAR(30), IN PostalCodeParam VARCHAR(10))
+BEGIN
+    SELECT * FROM Customers WHERE City = CityParam AND PostalCode = PostalCodeParam;
+END //
+DELIMITER ;
+
+-- postgre
+CREATE OR REPLACE FUNCTION select_all_customers_params(CityParam VARCHAR, PostalCodeParam VARCHAR)
+RETURNS TABLE (
+    CustomerID INT,
+    CustomerName VARCHAR,
+    ContactName VARCHAR,
+    Address VARCHAR,
+    City VARCHAR,
+    PostalCode VARCHAR,
+    Country VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.CustomerID,
+        c.CustomerName,
+        c.ContactName,
+        c.Address,
+        c.City,
+        c.PostalCode,
+        c.Country
+    FROM 
+        Customers c
+    WHERE 
+        c.City = CityParam AND c.PostalCode = PostalCodeParam;
+END;
+$$ LANGUAGE plpgsql;
+
+
+--llamarlo
+CALL SelectAllCustomersParams('Miami', '33101');
+
+-- postgre
+SELECT * FROM select_all_customers_params('Readsville', '67890');
+
+
+
+
+-- crear tabla desde otra
+CREATE TABLE TestTable AS SELECT customername, contactname FROM customers;  
+select * from testtable
+
+-- elimina datos pero no tabla
+TRUNCATE TABLE testtable; 
+
+--borrar tabla
+DROP TABLE testtable;
+
+
+-- añade columna
+ALTER TABLE Customers ADD Email varchar(255);  
+
+-- eliminar columna
+ALTER TABLE Customers DROP COLUMN Email;
+
+
+
+
+
+-- crear tabla con valores no nulos, unico el id y como clave primaria
+CREATE TABLE Persons (
+    ID int NOT NULL UNIQUE,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    PRIMARY KEY (ID)
+);
+
+drop table persons;
+
+-- clave primaria de dos campos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    CONSTRAINT PK_Person PRIMARY KEY (ID,LastName)
+);
+
+-- insertamos
+INSERT INTO Persons (ID, LastName, FirstName, Age) VALUES (1, 'Fernandez', 'Javier', 23);
+
+
+--no se puede por la clave primaria duplicada
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES(1,'Fernandez', 'Javier',23)
+
+
+-- eliminamos clave primaria (workbench)
+ALTER TABLE Persons DROP PRIMARY KEY;
+
+-- postgre
+SELECT conname
+FROM pg_constraint
+WHERE conrelid = 'persons'::regclass
+AND contype = 'p';
+
+ALTER TABLE Persons DROP CONSTRAINT pk_person;
+
+-- añadimos clave primaria
+ALTER TABLE Persons ADD PRIMARY KEY (ID);
+
+--ver como es la tabla (workbench)
+describe Persons;
+
+-- postgre
+SELECT column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'persons';
+
+
+-- otra forma poner clave foránea
+CREATE TABLE LastOrders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    CONSTRAINT FK_PersonOrder FOREIGN KEY (PersonID)
+    REFERENCES Persons(ID)
+);
+
+-- ver nombres claves foráneas y primarias (workbench)
+SHOW CREATE TABLE LastOrders;
+
+-- eliminar clave foránea (workbench)
+ALTER TABLE LastOrders DROP FOREIGN KEY FK_PersonOrder;
+
+-- postgre
+ALTER TABLE LastOrders DROP CONSTRAINT FK_PersonOrder;
+
+-- crear otra vez clave foránea
+ALTER TABLE LastOrders ADD FOREIGN KEY (PersonID) REFERENCES Persons(ID);
+
+drop table lastorders;
+drop table persons;
+
+
+-- check al crear elementos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    CHECK (Age>=18)
+);
+
+-- no lo permite
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES(1,'Fernandez','Rodrigo',16)
+
+drop table persons;
+
+-- validación dos campos
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    City varchar(255),
+    CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Valladolid')
+);
+
+-- este si que lo permite
+INSERT INTO Persons (ID, LastName, FirstName,Age,City) VALUES(1,'Fernandez','Rodrigo',19,'Valladolid')
+
+-- añadimos otra validación
+ALTER TABLE Persons ADD CHECK (Age<=99);
+
+-- para ver las validaciones (workbench)
+show create table persons
+
+drop table persons
+
+-- valor por defecto
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    City varchar(255) DEFAULT 'Sin ciudad'
+);
+
+-- insertamos sin ciudad
+INSERT INTO Persons (ID, LastName, FirstName,Age) VALUES(1,'Fernandez','Rodrigo',19)
+
+-- añadimos por defecto
+ALTER TABLE Persons ALTER Age SET DEFAULT 18;
+
+-- insertamos
+INSERT INTO Persons (ID, LastName, FirstName) VALUES(1,'Fernandez','Rodrigo')
+
+-- eliminamos valor defecto
+ALTER TABLE Persons ALTER Age DROP DEFAULT;
+
+-- para que permita nulos (workbench)
+ALTER TABLE Persons MODIFY Age INT NULL;
+
+-- postgre
+ALTER TABLE Persons ALTER COLUMN Age TYPE INT,
+                    ALTER COLUMN Age DROP NOT NULL;
+
+
+-- insertamos
+INSERT INTO Persons (ID, LastName, FirstName) VALUES(1,'Fernandez','Ramon')
+
+-- los índices se utilizan para recuperar los datos más rápidamente
+-- actualizar tablas con índices tarda más. Mejor solo para búsqueda
+
+-- creamos el índice
+CREATE INDEX idx_pname ON Persons (LastName, FirstName);
+
+-- ver índice (workbench)
+SHOW INDEX FROM Persons;
+
+-- postgre
+SELECT *
+FROM pg_indexes
+WHERE tablename = 'persons';
+
+
+-- eliminamos índice (workbench)
+ALTER TABLE Persons DROP INDEX idx_pname;
+
+-- postgre
+DROP INDEX idx_pname;
+
+drop table persons
+
+-- id que se autoincrementa (workbench)
+CREATE TABLE Persons (
+    Personid int NOT NULL AUTO_INCREMENT,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    PRIMARY KEY (Personid)
+);
+
+-- postgre
+CREATE TABLE Persons (
+    Personid SERIAL PRIMARY KEY,
+    LastName VARCHAR(255) NOT NULL,
+    FirstName VARCHAR(255),
+    Age INT
+);
+
+
+-- insertamos
+INSERT INTO Persons ( LastName, FirstName) VALUES('Fernandez','Ramon')
+
+select * from persons
+
+-- una view es una tabla virtual con el resultado de una consulta
+CREATE VIEW USACustomers AS
+SELECT CustomerName, ContactName
+FROM Customers
+WHERE Country = 'USA';
+
+SELECT * FROM USACustomers;
+
+
+-- workbench utiliza más "" y ``, postgre ''
+
+CREATE VIEW "Productos debajo media" AS
+SELECT ProductName, Price
+FROM Products
+WHERE Price > (SELECT AVG(Price) FROM Products);
+
+SELECT * FROM "Productos debajo media";
+
+
+-- modificamos la vista
+CREATE OR REPLACE VIEW USACustomers AS
+SELECT CustomerName, ContactName, City
+FROM Customers
+WHERE Country = 'USA';
+
+--vemos datos
+select * from USACustomers
+
+
+-- eliminar vista
+DROP VIEW USACustomers;
+
+
+
+
+
+-- with crea un subloque de una query que se puede referenciar en la consulta principal
+-- vista temporal que no se almacena, útil cuando no es adecuada una tabla derivada
+WITH OrderInfo AS (
+    SELECT
+        o.OrderID,
+        o.CustomerID,
+        o.ShipperID,
+        c.CustomerName,
+        sm.ShipperName
+    FROM
+        Orders o
+    JOIN
+        Customers c ON o.CustomerID = c.CustomerID
+    JOIN
+        Shippers sm ON o.ShipperID = sm.ShipperID
+)
+SELECT
+    OrderInfo.OrderID,
+    OrderInfo.CustomerName,
+    OrderInfo.ShipperID
+FROM
+    OrderInfo;
+
+
+
+
+
+-- con having sum, agrupa por supplierid y pone los supplier cuya suma sea mayor a 100 en los precios
+SELECT SupplierID, SUM(Price) AS TotalPrice
+FROM Products
+GROUP BY SupplierID
+HAVING SUM(Price) > 100;
+
+
+-- full outer join. Obtiene todos los elementos de ambas tablas aunque no tengan coincidencias
+SELECT Customers.CustomerID, Customers.CustomerName, Orders.OrderID, Orders.OrderDate
+FROM Customers
+FULL OUTER JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
+
+
+-- extraer el año de una fecha
+SELECT EmployeeID, FirstName, LastName, EXTRACT(YEAR FROM BirthDate) AS BirthYear
+FROM Employees;
+
+
+-- extraer primeras letras y poner a minúscula
+SELECT CustomerID, LOWER(CustomerName) AS LowerCustomerName, LEFT(ContactName, 3) AS ContactInitials
+FROM Customers;
+
+
+-- charlength para la longitud y cast para convertir
+SELECT ProductName, CHAR_LENGTH(ProductName) AS NameLength, CAST(Price AS VARCHAR) AS PriceAsText
+FROM Products;
+
+-- devuelve null si la cantidad es 0
+-- compara dos expresiones y devuelve NULL si son iguales; de lo contrario, devuelve el valor de la primera expresión
+SELECT ProductID, ProductName, Price, Unit, Price / NULLIF(Unit, 0) AS PricePerUnit
+FROM Products;
+
+-- cuenta productos según precio
+SELECT 
+    SUM(CASE WHEN Price > 100 THEN 1 ELSE 0 END) AS ExpensiveProducts,
+    SUM(CASE WHEN Price <= 100 THEN 1 ELSE 0 END) AS CheapProducts
+FROM Products;
+
+
+-- crear tabla con timestamp
+CREATE TABLE Events (
+    EventID SERIAL PRIMARY KEY,
+    EventName VARCHAR(255),
+    EventDate TIMESTAMP
+);
+
+
+-- insertar
+INSERT INTO Events (EventName, EventDate) 
+VALUES 
+('Event A', '2024-07-21 10:00:00'),
+('Event B', '2024-07-22 14:30:00'),
+('Event C', '2024-07-23 09:45:00');
+
+
+
+INSERT INTO Employees (FirstName, LastName, BirthDate, Notes) 
+VALUES 
+('John', 'Doe', '1980-01-15', 'Senior Developer'),
+('Jane', 'Smith', '1985-05-20', 'Project Manager'),
+('Alice', 'Johnson', '1990-07-25', 'QA Engineer');
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID)
+VALUES
+(1, 1, '2024-07-21', 1),  -- Pedido gestionado por el empleado con EmployeeID = 1
+(2, 2, '2024-07-22', 2);  -- Pedido gestionado por el empleado con EmployeeID = 2
+
+-- empleados que no tienen pedidos
+SELECT EmployeeID, FirstName, LastName
+FROM Employees e
+WHERE NOT EXISTS (
+    SELECT *
+    FROM Orders o
+    WHERE o.EmployeeID = e.EmployeeID
+);
+
+
+
+
+
+
+-- total de ventas por proveedor, sólo para aquellos proveedores cuyos productos tienen un precio total superior a 500
+SELECT 
+    s.SupplierName,
+    SUM(p.Price * od.Quantity) AS TotalSales,
+    CASE 
+        WHEN SUM(p.Price * od.Quantity) > 500 THEN 'High Sales'
+        ELSE 'Low Sales'
+    END AS SalesCategory
+FROM 
+    Suppliers s
+JOIN 
+    Products p ON s.SupplierID = p.SupplierID
+JOIN 
+    OrderDetails od ON p.ProductID = od.ProductID
+GROUP BY 
+    s.SupplierName
+HAVING 
+    SUM(p.Price * od.Quantity) > 500;
+
+
+-- clientes y todas las órdenes, incluyendo clientes sin pedidos y pedidos sin clientes, y extrae el año de las fechas de los pedidos
+SELECT 
+    c.CustomerName,
+    o.OrderID,
+    o.OrderDate,
+    EXTRACT(YEAR FROM o.OrderDate) AS OrderYear
+FROM 
+    Customers c
+FULL OUTER JOIN 
+    Orders o ON c.CustomerID = o.CustomerID
+ORDER BY 
+    c.CustomerName, o.OrderID;
+
+
+-- calcula el precio promedio por producto, manejando casos en que la cantidad es cero para evitar divisiones por cero, y convierte los resultados a texto
+SELECT 
+    p.ProductName,
+    COALESCE(CAST(SUM(p.Price) / NULLIF(SUM(od.Quantity), 0) AS VARCHAR), 'No Data') AS AveragePricePerUnit
+FROM 
+    Products p
+LEFT JOIN 
+    OrderDetails od ON p.ProductID = od.ProductID
+GROUP BY 
+    p.ProductName;
+
+
+-- longitud del nombre del cliente en minúsculas y muestra los primeros 3 caracteres del nombre del contacto
+SELECT 
+    CustomerID,
+    LOWER(CustomerName) AS LowerCustomerName,
+    CHAR_LENGTH(CustomerName) AS NameLength,
+    LEFT(ContactName, 3) AS ContactInitials
+FROM 
+    Customers;
+
+
+-- productos que tienen al menos un pedido asociado
+-- select 1 es como *
+SELECT 
+    ProductID, 
+    ProductName, 
+    Price
+FROM 
+    Products p
+WHERE 
+    EXISTS (
+        SELECT 1
+        FROM OrderDetails od
+        WHERE od.ProductID = p.ProductID
+    );
+
+
+-- asigna un rango a los productos basándose en el precio, dentro de cada categoría
+-- en la categoría 1 hay uno de ranking 1, otro de 2, otro de 3... según el precio
+SELECT 
+    ProductID,
+    ProductName,
+    CategoryID,
+    Price,
+    RANK() OVER (PARTITION BY CategoryID ORDER BY Price DESC) AS PriceRank
+FROM 
+    Products;
+
+
+
+-- empleados que han gestionado más de 1 pedido, mostrando el número de pedidos gestionados por cada empleado
+SELECT 
+    e.EmployeeID,
+    e.FirstName,
+    e.LastName,
+    COUNT(DISTINCT o.OrderID) AS NumberOfOrders
+FROM 
+    Employees e
+JOIN 
+    Orders o ON e.EmployeeID = o.EmployeeID
+GROUP BY 
+    e.EmployeeID, e.FirstName, e.LastName
+HAVING 
+    COUNT(DISTINCT o.OrderID) > 1;
+
+
+
+INSERT INTO Products (ProductName, SupplierID, CategoryID, Unit, Price) 
+VALUES 
+('Product A', 1, 1, 10, 25.50),
+('Product B', 1, 1, 20, 15.75),
+('Product C', 2, 2, 30, 35.00),
+('Product D', 2, 2, 40, 45.25);
+
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipperID) 
+VALUES 
+(1, 1, '2024-07-21', 1),
+(2, 2, '2024-07-22', 2);
+
+INSERT INTO OrderDetails (OrderID, ProductID, Quantity) 
+VALUES 
+(1, 1, 2),  -- Product A, Quantity 2
+(1, 2, 1),  -- Product B, Quantity 1
+(2, 3, 3),  -- Product C, Quantity 3
+(2, 4, 4);  -- Product D, Quantity 4
+
+
+
+-- lista de productos en cada pedido, concatenada en una sola cadena por pedido (muestra: portatil, telefono...)
+SELECT 
+    o.OrderID,
+    STRING_AGG(p.ProductName, ', ') AS ProductsList
+FROM 
+    Orders o
+JOIN 
+    OrderDetails od ON o.OrderID = od.OrderID
+JOIN 
+    Products p ON od.ProductID = p.ProductID
+GROUP BY 
+    o.OrderID;
+
+
+
+-- número de pedidos realizados en cada mes, truncando la fecha a nivel de mes
+SELECT 
+    DATE_TRUNC('month', o.OrderDate) AS Month,
+    COUNT(o.OrderID) AS NumberOfOrders
+FROM 
+    Orders o
+GROUP BY 
+    DATE_TRUNC('month', o.OrderDate)
+ORDER BY 
+    Month;
+
+-- redondear precio total de un pedido
+SELECT 
+    ProductName,
+    Price,
+    Quantity,
+    ROUND(Price * Quantity, 2) AS TotalPrice
+FROM 
+    OrderDetails od
+JOIN 
+    Products p ON od.ProductID = p.ProductID;
+
+
+-- precio en intervalo
+SELECT ProductID, ProductName, Price
+FROM Products
+WHERE Price BETWEEN 10 AND 50;
+
+
+-- fecha en intervalo
+SELECT OrderID, CustomerID, OrderDate
+FROM Orders
+WHERE OrderDate BETWEEN '2024-07-01' AND '2024-07-31';
